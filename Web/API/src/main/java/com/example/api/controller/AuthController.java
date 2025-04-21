@@ -7,11 +7,15 @@ import com.example.api.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import com.example.api.service.EmailService;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -99,5 +103,43 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+
+    @GetMapping("/check-auth")
+    public ResponseEntity<?> checkAuthentication() {
+        // Get the current authenticated user
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        if (principal != null && !principal.equals("anonymousUser")) {
+            return ResponseEntity.ok(Map.of("authenticated", true, "user", principal));
+        } else {
+            return ResponseEntity.ok(Map.of("authenticated", false));
+        }
+    }
+
+
+
+
+    @GetMapping("/user-info")
+    public ResponseEntity<?> getUserInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        
+        User user = userService.findUserByEmail(email);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("email", user.getEmail());
+        response.put("fullName", user.getFullName());
+        response.put("role", user.getRoles().stream()
+                .map(role -> role.getRoleName())
+                .collect(Collectors.joining(",")));
+        
+        return ResponseEntity.ok(response);
+    }
+
+
 
 }

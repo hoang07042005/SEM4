@@ -1,9 +1,12 @@
 package com.example.api.config;
 
 import com.example.api.filter.JwtAuthenticationFilter;
+import com.example.api.service.OAuth2UserService;
+import com.example.api.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +22,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-
 import java.util.Arrays;
 
 @Configuration
@@ -27,24 +29,43 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2UserService oAuth2UserService;
+    private final JwtUtil jwtUtil;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    @Autowired
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, 
+                          OAuth2UserService oAuth2UserService,
+                          JwtUtil jwtUtil) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.oAuth2UserService = oAuth2UserService;
+        this.jwtUtil = jwtUtil;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/oauth2/**", "/login/**").permitAll()
                 .anyRequest().authenticated())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, exep) -> {
                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: " + exep.getMessage());
             }))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo
+                    .userService(oAuth2UserService))
+                .successHandler((request, response, authentication) -> {
+                    // Get email from the authenticated user
+                    String email = authentication.getName();
+                    // Generate JWT token
+                    String token = jwtUtil.generateToken(email);
+                    // Redirect to frontend with token
+                    response.sendRedirect("http://localhost:3000/oauth2/redirect?token=" + token);
+                })
+            );
 
         return http.build();
     }
@@ -72,3 +93,4 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 }
+

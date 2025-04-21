@@ -11,6 +11,7 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 import UserIndex from "./components/admin/user/UserIndex";
 import DashboardPage from "./components/admin/DashboardPage";
 import AdminPage from "./components/admin/AdminPage";
+import OAuth2RedirectHandler from "./components/auth/OAuth2RedirectHandler";
 
 import "./App.css";
 
@@ -23,6 +24,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
         <Route path="/register" element={<Register />} />
         <Route path="/activate" element={<ActivateAccount />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />

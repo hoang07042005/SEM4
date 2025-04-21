@@ -173,4 +173,7 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }
