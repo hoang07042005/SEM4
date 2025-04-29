@@ -1,4 +1,5 @@
 // src/i18n.js
+import { max, min } from "date-fns";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
@@ -70,12 +71,16 @@ const resources = {
       event_management: "Event Management",
       filter_by_month:"Filter By Month",
       filter_by_status:"Filter By Status ",
+      ticket_price: "Ticket Price",
       all_months:"All Months ",
       all_statuses:"All Statuses ",
       description:"Description ",
       start_date:"Start Date ",
       end_date:" Start End",
       total_events:"Total events", 
+      filter_by_price: "Filter By Ticket Price",
+      min_price: "Min Price",
+      max_price: "Max Price",
 
     },
   },
@@ -148,13 +153,16 @@ const resources = {
       event_management: "Quản lý sự kiện",
       filter_by_month: "Lọc theo tháng",
       filter_by_status: "Lọc theo trạng thái",
+      ticket_price: "Giá vé",
       all_months: "Tất cả các tháng",
       all_statuses: "Tất cả các trạng thái",
       description: "Mô tả",
       start_date: "Ngày bắt đầu",
       end_date: "Bắt đầu kết thúc",
       total_events: "Tổng số sự kiện",
-
+      filter_by_price: "Lọc theo giá vé",
+      min_price: "Giá tối thiểu",
+      max_price: "Giá tối đa",
     },
   },
 };

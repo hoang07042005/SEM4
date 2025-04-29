@@ -110,6 +110,8 @@ const EventIndex = () => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [filteredEvents, setFilteredEvents] = useState([]);
     const [statusOptions, setStatusOptions] = useState([]);
+    const [filterPrice, setFilterPrice] = useState({ min: '', max: '' });
+    const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
 
     useEffect(() => {
         loadEvents();
@@ -118,7 +120,7 @@ const EventIndex = () => {
 
     useEffect(() => {
         filterEvents();
-    }, [events, filterMonth, filterStatus]);
+    }, [events, filterMonth, filterStatus, filterPrice, showAdvancedFilter]);
 
     const loadEvents = async () => {
         try {
@@ -167,23 +169,44 @@ const EventIndex = () => {
     const filterEvents = () => {
         let filtered = [...events];
 
-        // Filter by month
-        if (filterMonth !== 'all') {
-            filtered = filtered.filter(event => {
-                const eventMonth = new Date(event.startDate).getMonth();
-                return eventMonth === parseInt(filterMonth);
-            });
-        }
+        if (!showAdvancedFilter) {
+            // Basic filters (month and status)
+            if (filterMonth !== 'all') {
+                filtered = filtered.filter(event => {
+                    const eventMonth = new Date(event.startDate).getMonth();
+                    return eventMonth === parseInt(filterMonth);
+                });
+            }
 
-        // Filter by status
-        if (filterStatus !== 'all') {
-            filtered = filtered.filter(event => 
-                event.statusName === filterStatus
-            );
+            if (filterStatus !== 'all') {
+                filtered = filtered.filter(event => 
+                    event.statusName === filterStatus
+                );
+            }
+        } else {
+            // Price filter
+            if (filterPrice.min !== '') {
+                filtered = filtered.filter(event => 
+                    event.ticketPrice >= parseFloat(filterPrice.min)
+                );
+            }
+            if (filterPrice.max !== '') {
+                filtered = filtered.filter(event => 
+                    event.ticketPrice <= parseFloat(filterPrice.max)
+                );
+            }
         }
 
         setFilteredEvents(filtered);
-        setCurrentPage(1); // Reset to first page when filters change
+        setCurrentPage(1);
+    };
+
+    const toggleFilters = () => {
+        setShowAdvancedFilter(!showAdvancedFilter);
+        // Reset filters when switching
+        setFilterMonth('all');
+        setFilterStatus('all');
+        setFilterPrice({ min: '', max: '' });
     };
 
     // Calculate pagination
@@ -201,46 +224,80 @@ const EventIndex = () => {
                 </Link>
             </div>
 
-            {/* Add Filter Section */}
             <div className="filters">
-                <div className="filter-group">
-                    <label>{t("filter_by_month")}:</label>
-                    <select 
-                        value={filterMonth}
-                        onChange={(e) => setFilterMonth(e.target.value)}
-                        className="form-select"
-                    >
-                        <option value="all">{t("all_months")}</option>
-                        <option value="0">{t("january")}</option>
-                        <option value="1">{t("february")}</option>
-                        <option value="2">{t("march")}</option>
-                        <option value="3">{t("april")}</option>
-                        <option value="4">{t("may")}</option>
-                        <option value="5">{t("june")}</option>
-                        <option value="6">{t("july")}</option>
-                        <option value="7">{t("august")}</option>
-                        <option value="8">{t("september")}</option>
-                        <option value="9">{t("october")}</option>
-                        <option value="10">{t("november")}</option>
-                        <option value="11">{t("december")}</option>
-                    </select>
-                </div>
+                {!showAdvancedFilter ? (
+                    // Basic filters
+                    <>
+                        <div className="filter-group">
+                            <label>{t("filter_by_month")}:</label>
+                            <select 
+                                value={filterMonth}
+                                onChange={(e) => setFilterMonth(e.target.value)}
+                                className="form-select"
+                            >
+                                <option value="all">{t("all_months")}</option>
+                                <option value="0">{t("january")}</option>
+                                <option value="1">{t("february")}</option>
+                                <option value="2">{t("march")}</option>
+                                <option value="3">{t("april")}</option>
+                                <option value="4">{t("may")}</option>
+                                <option value="5">{t("june")}</option>
+                                <option value="6">{t("july")}</option>
+                                <option value="7">{t("august")}</option>
+                                <option value="8">{t("september")}</option>
+                                <option value="9">{t("october")}</option>
+                                <option value="10">{t("november")}</option>
+                                <option value="11">{t("december")}</option>
+                            </select>
+                        </div>
 
-                <div className="filter-group">
-                    <label>{t("filter_by_status")}:</label>
-                    <select 
-                        value={filterStatus}
-                        onChange={(e) => setFilterStatus(e.target.value)}
-                        className="form-select"
-                    >
-                        <option value="all">{t("all_statuses")}</option>
-                        {statusOptions.map(status => (
-                            <option key={status.eventStatusId} value={status.statusName}>
-                                {status.statusName}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                        <div className="filter-group">
+                            <label>{t("filter_by_status")}:</label>
+                            <select 
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                                className="form-select"
+                            >
+                                <option value="all">{t("all_statuses")}</option>
+                                {statusOptions.map(status => (
+                                    <option key={status.eventStatusId} value={status.statusName}>
+                                        {status.statusName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </>
+                ) : (
+                    // Price filter
+                    <div className="filter-group price-filter">
+                        <label>{t("filter_by_price")}:</label>
+                        <div className="price-inputs">
+                            <input
+                                type="number"
+                                placeholder={t("min_price")}
+                                value={filterPrice.min}
+                                onChange={(e) => setFilterPrice(prev => ({ ...prev, min: e.target.value }))}
+                                className="form-control"
+                            />
+                            <span>-</span>
+                            <input
+                                type="number"
+                                placeholder={t("max_price")}
+                                value={filterPrice.max}
+                                onChange={(e) => setFilterPrice(prev => ({ ...prev, max: e.target.value }))}
+                                className="form-control"
+                            />
+                        </div>
+                    </div>
+                )}
+
+                <button 
+                    className="toggle-filter-btn"
+                    onClick={toggleFilters}
+                    title={showAdvancedFilter ? t("show_basic_filters") : t("show_price_filter")}
+                >
+                    {showAdvancedFilter ? '×' : '+'}
+                </button>
 
                 <div className="total-count">
                     {t("total_events")}: {filteredEvents.length}
@@ -254,6 +311,7 @@ const EventIndex = () => {
                         <th>{t("file_paths")}</th>
                         <th>{t("name")}</th>
                         <th>{t("description")}</th>
+                        <th>{t("ticket_price")}</th>
                         <th>{t("location")}</th>
                         <th>{t("status")}</th>
                         <th>{t("start_date")}</th>
@@ -282,6 +340,7 @@ const EventIndex = () => {
                             </td>
                             <td>{event.name}</td>
                             <td>{event.description}</td>
+                            <td>{event.ticketPrice}</td>
                             <td>{event.location}</td>
                             <td>{event.statusName}</td>
                             <td>{new Date(event.startDate).toLocaleString()}</td>
