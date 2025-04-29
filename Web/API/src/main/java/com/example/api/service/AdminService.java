@@ -1,14 +1,22 @@
 package com.example.api.service;
 
 import com.example.api.dto.UserDTO;
+import com.example.api.model.Role;
 import com.example.api.model.User;
 import com.example.api.repository.UserRepository;
+import com.example.api.repository.RoleRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,6 +24,9 @@ public class AdminService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     public Map<String, Integer> getAccountStats() {
         int totalAccounts = (int) userRepository.count();
@@ -30,8 +41,6 @@ public class AdminService {
         return stats;
     }
 
-
-    
     public List<UserDTO> getUserDTOs() {
         List<User> users = userRepository.findAll();
         return users.stream()
@@ -44,5 +53,13 @@ public class AdminService {
                         user.getIsActive(),
                         user.getCreatedAt()))
                 .collect(Collectors.toList());
+    }
+
+    public void deleteUserAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User does not exist."));
+
+        // Delete the user
+        userRepository.delete(user);
     }
 }

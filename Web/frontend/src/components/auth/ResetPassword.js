@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/ResetPassword.css";
+import "../styles/user/ResetPassword.css";
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -39,7 +39,7 @@ const ResetPassword = () => {
     <div className="reset-password-container">
       <h2>Đặt lại mật khẩu</h2>
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
+        <div className="reset-password-form-group">
           <input
             type="password"
             placeholder="Mật khẩu mới"
@@ -48,7 +48,7 @@ const ResetPassword = () => {
             required
           />
         </div>
-        <div className="form-group">
+        <div className="reset-password-form-group">
           <input
             type="password"
             placeholder="Xác nhận mật khẩu"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import "../styles/AdminDashboard.css";
+import "../styles/admin/AdminDashboard.css";
 import logo from "../../assets/logo.png";
 
 const AdminDashboard = ({ children }) => {
@@ -70,6 +70,14 @@ const AdminDashboard = ({ children }) => {
             <li onClick={() => navigate("/admin/dashboard")}>
               <span className="menu-icon">📊</span>
               <span className="menu-text">{t("dashboard")}</span>
+            </li>
+            <li onClick={() => navigate("/admin/destination")}>
+              <span className="menu-icon">🌍</span>
+              <span className="menu-text">{t("destination")}</span>
+            </li>
+            <li onClick={() => navigate("/admin/event")}>
+              <span className="menu-icon">📅</span>
+              <span className="menu-text">{t("event")}</span>
             </li>
             <div className="account-section">
               <li className="menu-section">{t("account_pages")}</li>

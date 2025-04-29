@@ -11,12 +11,26 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 import UserIndex from "./components/admin/user/UserIndex";
 import DashboardPage from "./components/admin/DashboardPage";
 import AdminPage from "./components/admin/AdminPage";
-import OAuth2RedirectHandler from "./components/auth/OAuth2RedirectHandler";
+
 
 import "./App.css";
 
-const App = () => {
+
+const App = () => {  
   const isAuthenticated = !!localStorage.getItem("token");
+  const userRole = localStorage.getItem("role");
+  
+  const ProtectedRoute = ({ element, requiredRole }) => {
+    if (!isAuthenticated) {
+      return <Navigate to="/login" />;
+    }
+    
+    if (requiredRole && userRole !== requiredRole) {
+      return <Navigate to="/dashboard" />;
+    }
+    
+    return element;
+  };
 
   
   return (
@@ -24,7 +38,6 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
         <Route path="/register" element={<Register />} />
         <Route path="/activate" element={<ActivateAccount />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -32,18 +45,66 @@ const App = () => {
         <Route path="/change-password" element={<ChangePassword />} />
         <Route
           path="/dashboard"
-          element={isAuthenticated ? <UserDashboard /> : <Navigate to="/login" />}
+          element={<ProtectedRoute element={<UserDashboard />} />}
         />
+
+        {/* Admin routes */}
         <Route
           path="/admin-dashboard"
-          element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />}
+          element={<ProtectedRoute element={<AdminDashboard />} requiredRole="ADMIN" />}
         />
         <Route
           path="/user"
-          element={isAuthenticated ? <UserIndex /> : <Navigate to="/login" />}
+          element={<ProtectedRoute element={<UserIndex />} requiredRole="ADMIN" />}
         />
-        <Route path="/admin/dashboard" element={<DashboardPage />} />
-        <Route path="/admin/user" element={<AdminPage />} />
+        <Route
+          path="/admin/dashboard"
+          element={<ProtectedRoute element={<DashboardPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/user"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        {/* <Route
+          path="/admin/user/register"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        /> */}
+        <Route
+          path="/admin/destination"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/destination/add"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/destination/edit/:destinationId"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/destination/:destinationId"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}       
+        />
+
+
+        <Route
+          path="/admin/event"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/event/add"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/event/edit/:eventId"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/event/:eventId"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}       
+        />
+
+
       </Routes>
     </Router>
   );

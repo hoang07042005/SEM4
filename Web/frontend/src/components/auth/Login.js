@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from "axios";
-import "../styles/Login.css";
+import "../styles/user/Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,47 +14,12 @@ const Login = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Handle redirects from Google OAuth
     const params = new URLSearchParams(location.search);
     const message = params.get("message");
-    const token = params.get("token");
-    
-    if (token) {
-      // This would be from OAuth2 redirect
-      handleOAuthSuccess(token);
-    } else if (message) {
+    if (message) {
       setSuccess(message);
     }
   }, [location]);
-
-  // Handle successful OAuth login
-  const handleOAuthSuccess = async (token) => {
-    try {
-      // Store token
-      localStorage.setItem("token", token);
-      
-      // Fetch user info with the token
-      const response = await axios.get("http://localhost:8080/api/auth/user-info", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      const { email, role } = response.data;
-      localStorage.setItem("email", email);
-      localStorage.setItem("role", role);
-      
-      setSuccess("Đăng nhập thành công!");
-      
-      // Redirect based on role
-      if (role === "ADMIN") {
-        navigate("/admin-dashboard");
-      } else {
-        navigate("/dashboard");
-      }
-    } catch (err) {
-      setError("Không thể lấy thông tin người dùng. Vui lòng thử lại.");
-      localStorage.removeItem("token");
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,15 +47,20 @@ const Login = () => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleGoogleLogin = () => {
-    // Redirect to the backend's OAuth2 authorization endpoint
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    // Placeholder for Google login functionality
+    console.log("Google login clicked");
+    // In a real implementation, this would initiate Google OAuth flow
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <div className="modal-header">
+    <div className="login-modal-overlay">
+      <div className="login-modal-content">
+        <div className="login-modal-header">
           <h2>Đăng nhập</h2>
           <button onClick={() => navigate("/")} className="close-button">
             ✕
@@ -100,7 +71,7 @@ const Login = () => {
         </p>
         {success && <p className="success-message">{success}</p>}
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="login-form-group">
             <input
               type="email"
               placeholder="Nhập email"
@@ -109,21 +80,22 @@ const Login = () => {
               required
             />
           </div>
-          <div className="form-group password-group">
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Mật khẩu"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <span
-              className="password-toggle"
-              onClick={() => setShowPassword(!showPassword)}
-              style={{ cursor: "pointer" }}
-            >
-              {showPassword ? "👁️" : "🙈"}
-            </span>
+          <div className="login-form-group">
+            <div className="login-password-group">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Mật khẩu"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <span
+                className="login-password-toggle"
+                onClick={togglePasswordVisibility}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
           </div>
           {error && <p className="error-message">{error}</p>}
           <button type="submit" className="submit-button">
