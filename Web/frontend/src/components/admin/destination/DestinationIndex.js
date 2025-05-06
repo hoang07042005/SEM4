@@ -198,16 +198,20 @@ const DestinationIndex = () => {
                             <td>{destination.rating}</td>
                             <td>
                                 <Link
+                                    to={`/admin/destination/detail/${destination.destinationId}`}
+                                    className="btn btn-info btn-sm me-2"
+                                >
+                                    <i className="bi bi-eye text-white"></i>
+                                </Link>
+                                <Link
                                     to={`/admin/destination/edit/${destination.destinationId}`}
                                     className="btn btn-warning btn-sm me-2"
                                 >
                                     <i className="bi bi-pencil text-white"></i>
                                 </Link>
-
                                 <button onClick={() => deleteDestination(destination.destinationId)}
                                     className="btn btn-danger btn-sm">
-                                    <i class="bi bi-trash"></i>
-
+                                    <i className="bi bi-trash"></i>
                                 </button>
                             </td>
                         </tr>

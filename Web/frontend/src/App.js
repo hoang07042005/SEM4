@@ -12,8 +12,9 @@ import UserIndex from "./components/admin/user/UserIndex";
 import DashboardPage from "./components/admin/DashboardPage";
 import AdminPage from "./components/admin/AdminPage";
 
-
 import "./App.css";
+import TourDashboard from "./components/tour/TourDashboard";
+import TourDetailDashboard from "./components/tour/TourDetailDashboard ";
 
 
 const App = () => {  
@@ -47,6 +48,16 @@ const App = () => {
           path="/dashboard"
           element={<ProtectedRoute element={<UserDashboard />} />}
         />
+        <Route
+          path="/tour-dashboard"
+          element={<ProtectedRoute element={<TourDashboard />} />}
+        />    
+        <Route
+          path="/tour-dashboard/detail/:tourId"
+          element={<ProtectedRoute element={<TourDetailDashboard />} />}
+        /> 
+
+
 
         {/* Admin routes */}
         <Route
@@ -69,12 +80,19 @@ const App = () => {
           path="/admin/user/register"
           element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
         /> */}
+
+
+        {/* Destination */}
         <Route
           path="/admin/destination"
           element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
         />
         <Route
           path="/admin/destination/add"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/destination/detail/:destinationId"
           element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
         />
         <Route
@@ -86,13 +104,17 @@ const App = () => {
           element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}       
         />
 
-
+        {/* Event */}
         <Route
           path="/admin/event"
           element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
         />
         <Route
           path="/admin/event/add"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/event/detail/:eventId"
           element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
         />
         <Route
@@ -105,6 +127,29 @@ const App = () => {
         />
 
 
+        {/* Tour */}
+        <Route
+          path="/admin/tour"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/tour/add"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/tour/detail/:tourId"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/tour/edit/:tourId"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+        <Route
+          path="/admin/tour/:tourId"
+          element={<ProtectedRoute element={<AdminPage />} requiredRole="ADMIN" />}
+        />
+
+       
       </Routes>
     </Router>
   );

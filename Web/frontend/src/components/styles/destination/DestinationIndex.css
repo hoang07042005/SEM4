@@ -6,9 +6,9 @@
     transition: transform 0.2s;
 }
 
-.media-preview:hover {
+/* .media-preview:hover {
     transform: scale(1.05);
-}
+} */
 
 .preview-container {
     position: relative;

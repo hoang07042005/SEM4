@@ -8,6 +8,12 @@ import UpdateDestination from "./destination/UpdateDestination";
 import EventIndex from "./event/EventIndex";
 import AddEvent from "./event/AddEvent";
 import UpdateEvent from "./event/UpdateEvent";
+import AddTour from "./tour/AddTour";
+import UpdateTour from "./tour/UpdateTour";
+import TourIndex from "./tour/TourIndex";
+import DetailDestination from "./destination/DetailDestination";
+import DetailEvent from "./event/DetailEvent";
+import DetailTour from "./tour/DetailTour";
 
 
 const AdminPage = () => {
@@ -20,6 +26,9 @@ const AdminPage = () => {
       if (pathSegments.includes('add')) {
         return <AddDestination />;
       }
+      if (pathSegments.includes('detail')) {
+        return <DetailDestination />;
+      }
       if (pathSegments.includes('edit')) {
         return <UpdateDestination />;
       }
@@ -30,10 +39,26 @@ const AdminPage = () => {
       if (pathSegments.includes('add')) {
         return <AddEvent />;
       }
+      if (pathSegments.includes('detail')) {
+        return <DetailEvent />;
+      }
       if (pathSegments.includes('edit')) {
         return <UpdateEvent />;
       }
       return <EventIndex />;
+    }
+    
+    if (pathSegments.includes('tour') || pathSegments.includes('tours')) {
+      if (pathSegments.includes('add')) {
+        return <AddTour />;
+      }
+      if (pathSegments.includes('detail')) {
+        return <DetailTour />;
+      }
+      if (pathSegments.includes('edit')) {
+        return <UpdateTour />;
+      }
+      return <TourIndex />;
     }
 
     return <UserIndex />;

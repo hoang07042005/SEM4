@@ -348,6 +348,12 @@ const EventIndex = () => {
                             
                             <td>
                                 <Link
+                                    to={`/admin/event/detail/${event.eventId}`}
+                                    className="btn btn-info btn-sm me-2"
+                                >
+                                    <i className="bi bi-eye text-white"></i>
+                                </Link>
+                                <Link
                                     to={`/admin/event/edit/${event.eventId}`}
                                     className="btn btn-warning btn-sm me-2"
                                 >
