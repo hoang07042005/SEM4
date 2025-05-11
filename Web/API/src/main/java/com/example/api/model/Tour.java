@@ -30,13 +30,21 @@ public class Tour {
     private String imageUrl;
 
 
-    @ManyToMany
-    @JoinTable(name = "tour_destinations", joinColumns = @JoinColumn(name = "tour_id"), inverseJoinColumns = @JoinColumn(name = "destination_id"))
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "tour_destinations",
+        joinColumns = @JoinColumn(name = "tour_id"),
+        inverseJoinColumns = @JoinColumn(name = "destination_id")
+    )
     @JsonIgnoreProperties("tours")
     private List<Destination> destinations;
 
-    @ManyToMany
-    @JoinTable(name = "tour_events", joinColumns = @JoinColumn(name = "tour_id"), inverseJoinColumns = @JoinColumn(name = "event_id"))
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "tour_events",
+        joinColumns = @JoinColumn(name = "tour_id"),
+        inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
     @JsonIgnoreProperties("tours")
     private List<Event> events;
 }

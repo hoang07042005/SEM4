@@ -51,7 +51,7 @@ export default function TourDashboard() {
               <h3>{tour.name}</h3>
               <p><strong>Price:</strong> ${tour.price}</p>
               <p><strong>Duration:</strong> {tour.duration} days</p>
-              <Link to={`/tour-dashboard/detail/${tour.tourId}`} className="btn">View Details</Link>
+              <Link to={`/tour-dashboard/detail/${tour.tourId}`} className="btn-tour-dashboard">View Details</Link>
             </div>
           </div>
         ))}

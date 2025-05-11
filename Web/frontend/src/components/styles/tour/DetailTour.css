@@ -60,7 +60,7 @@ ul {
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
 
-.btn {
+.btn-tour-detail-admin {
   background-color: #007bff;
   color: white;
   padding: 0.6rem 1.2rem;
@@ -69,7 +69,7 @@ ul {
   cursor: pointer;
 }
 
-.btn:hover {
+.btn-tour-detail-admin:hover {
   background-color: #0056b3;
 }
 

@@ -199,19 +199,19 @@ const DestinationIndex = () => {
                             <td>
                                 <Link
                                     to={`/admin/destination/detail/${destination.destinationId}`}
-                                    className="btn btn-info btn-sm me-2"
+                                    className="action-link"
                                 >
-                                    <i className="bi bi-eye text-white"></i>
+                                    🔍  
                                 </Link>
                                 <Link
                                     to={`/admin/destination/edit/${destination.destinationId}`}
-                                    className="btn btn-warning btn-sm me-2"
+                                    className="action-link"
                                 >
-                                    <i className="bi bi-pencil text-white"></i>
+                                  ✏️
                                 </Link>
-                                <button onClick={() => deleteDestination(destination.destinationId)}
-                                    className="btn btn-danger btn-sm">
-                                    <i className="bi bi-trash"></i>
+                                <button className="delete-button"  onClick={() => deleteDestination(destination.destinationId)}
+                                    >
+                                    🗑️
                                 </button>
                             </td>
                         </tr>

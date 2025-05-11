@@ -83,6 +83,10 @@ const AdminDashboard = ({ children }) => {
               <span className="menu-icon">🗺️</span>
               <span className="menu-text">{t("tour")}</span>
             </li>
+            <li onClick={() => navigate("/admin/itinerary")}>
+              <span className="menu-icon">🗺️</span>
+              <span className="menu-text">{t("itinerary")}</span>
+            </li>
             <div className="account-section">
               <li className="menu-section">{t("account_pages")}</li>
               <li onClick={() => navigate("/admin/user")}>
@@ -122,7 +126,7 @@ const AdminDashboard = ({ children }) => {
               value={i18n.language}
             >
               <option value="vi">Viet Nam</option>
-              <option value="en">United States</option>
+              <option value="en">English</option>
             </select>
           </div>
           <div className="user-icon" onClick={toggleDropdown}>

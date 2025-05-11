@@ -4,6 +4,7 @@ package com.example.api.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -25,6 +26,9 @@ public class Booking {
 
     @Column(name = "booking_date")
     private LocalDateTime bookingDate;
+
+    @Column(name = "selected_date")
+    private LocalDate selectedDate;
 
     @ManyToOne
     @JoinColumn(name = "status_id")

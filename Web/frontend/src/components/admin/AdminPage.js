@@ -15,6 +15,11 @@ import DetailDestination from "./destination/DetailDestination";
 import DetailEvent from "./event/DetailEvent";
 import DetailTour from "./tour/DetailTour";
 
+import AddItinerary from "./itinerary/AddItinerary";
+import UpdateItinerary from "./itinerary/UpdateItinerary";
+import ItineraryIndex from "./itinerary/ItineraryIndex";
+import DetailItinerary from "./itinerary/DetailItinerary";
+
 
 const AdminPage = () => {
   const location = useLocation();
@@ -61,7 +66,24 @@ const AdminPage = () => {
       return <TourIndex />;
     }
 
-    return <UserIndex />;
+    if (pathSegments.includes('itinerary') || pathSegments.includes('itineraries')) {
+      if (pathSegments.includes('add')) {
+        return <AddItinerary />;
+      }
+      if (pathSegments.includes('detail')) {
+        return <DetailItinerary />;
+      }
+      if (pathSegments.includes('edit')) {
+        return <UpdateItinerary />;
+      }
+      return <ItineraryIndex />;
+    }
+
+    if (pathSegments.includes('user')) {
+      return <UserIndex />;
+    }
+
+    return <AdminDashboard />;
   };
 
   return (

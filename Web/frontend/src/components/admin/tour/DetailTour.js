@@ -137,7 +137,7 @@ export default function DetailTour() {
         </div>
 
         <div className="form-row">
-          <button onClick={() => navigate('/admin/tour')} className="btn">← Back to Tour List</button>
+          <button onClick={() => navigate('/admin/tour')} className="btn-tour-detail-admin">← Back to Tour List</button>
         </div>
       </div>
     </div>

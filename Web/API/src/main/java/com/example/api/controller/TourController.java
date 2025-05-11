@@ -4,6 +4,7 @@ import com.example.api.dto.TourDTO;
 import com.example.api.model.Tour;
 import com.example.api.service.TourService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
@@ -20,9 +21,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tours")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 public class TourController {
 
+    @Autowired
     private final TourService tourService;
 
     @GetMapping
@@ -70,6 +73,35 @@ public class TourController {
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to upload image: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/random")
+    public ResponseEntity<List<Tour>> getRandomTours(
+            @RequestParam(defaultValue = "3") int count,
+            @RequestParam Integer excludeTourId) {
+        return ResponseEntity.ok(tourService.getRandomTours(count, excludeTourId));
+    }
+
+    @GetMapping("/{tourId}/destinations")
+    public ResponseEntity<?> getTourDestinations(@PathVariable Integer tourId) {
+        try {
+            return ResponseEntity.ok(tourService.getTourDestinations(tourId));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("Invalid tour ID format");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error fetching destinations");
+        }
+    }
+
+    @GetMapping("/{tourId}/events")
+    public ResponseEntity<?> getTourEvents(@PathVariable Integer tourId) {
+        try {
+            return ResponseEntity.ok(tourService.getTourEvents(tourId));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("Invalid tour ID format");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error fetching events");
         }
     }
 
