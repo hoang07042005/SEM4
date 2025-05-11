@@ -9,12 +9,14 @@ import com.example.api.dto.BookingPassengerRequestDTO;
 import com.example.api.dto.PassengerDetailDTO;
 import com.example.api.model.Booking;
 import com.example.api.model.BookingPassenger;
-
+import com.example.api.model.Tour;
 import com.example.api.model.User;
 import com.example.api.repository.BookingPassengerRepository;
 import com.example.api.repository.BookingRepository;
+import com.example.api.repository.TourRepository;
 import com.example.api.repository.UserRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ public class BookingPassengerService {
     private final BookingPassengerRepository bookingPassengerRepo;
     private final BookingRepository bookingRepo;
     private final UserRepository userRepo;
+    private final TourRepository tourRepo;
 
     public BookingPassengerDTO create(BookingPassengerDTO dto) {
         BookingPassenger passenger = mapToEntity(dto);
@@ -71,13 +74,24 @@ public class BookingPassengerService {
             User user = userRepo.findById(request.getUserId())
                     .orElseThrow(() -> new RuntimeException("User not found with ID: " + request.getUserId()));
 
-            // Create main contact passenger
-            BookingPassengerDTO contactPassenger = createContactPassenger(request, booking.getBookingId(),
-                    user.getUserid());
+            BookingPassengerDTO contactPassenger = createContactPassenger(request, booking.getBookingId(), user.getUserid());
             createdPassengers.add(contactPassenger);
 
-            // Create additional passengers
             createAdditionalPassengers(request, booking.getBookingId(), user.getUserid(), createdPassengers);
+
+            Tour tour = tourRepo.findById(booking.getTour().getTourId())
+                    .orElseThrow(() -> new RuntimeException("Tour not found for booking"));
+            BigDecimal basePrice = tour.getPrice();
+            int adults = request.getPassengers().getAdult();
+            int children = request.getPassengers().getChild();
+            int infants = request.getPassengers().getInfant();
+
+            BigDecimal totalPrice = basePrice.multiply(BigDecimal.valueOf(adults))
+                .add(basePrice.multiply(BigDecimal.valueOf(0.5)).multiply(BigDecimal.valueOf(children)))
+                .add(basePrice.multiply(BigDecimal.valueOf(0.25)).multiply(BigDecimal.valueOf(infants)));
+
+            booking.setTotalPrice(totalPrice);
+            bookingRepo.save(booking);
 
             return createdPassengers;
         } catch (Exception e) {
@@ -88,74 +102,41 @@ public class BookingPassengerService {
 
     private void validateRequest(BookingPassengerRequestDTO request) {
         List<String> errors = new ArrayList<>();
-
-        if (request == null) {
-            throw new IllegalArgumentException("Request cannot be null");
+        if (request == null || request.getBookingId() == null || request.getUserId() == null || request.getContactInfo() == null) {
+            throw new IllegalArgumentException("Missing required booking, user or contact info");
         }
-
-        if (request.getBookingId() == null) {
-            errors.add("Booking ID is required");
+        if (request.getContactInfo().getFullName() == null || request.getContactInfo().getFullName().trim().isEmpty()) {
+            errors.add("Contact name is required");
         }
-
-        if (request.getUserId() == null) {
-            errors.add("User ID is required");
+        if (request.getContactInfo().getEmail() == null || request.getContactInfo().getEmail().trim().isEmpty()) {
+            errors.add("Contact email is required");
         }
-
-        if (request.getContactInfo() == null) {
-            errors.add("Contact information is required");
-        } else {
-            if (request.getContactInfo().getFullName() == null
-                    || request.getContactInfo().getFullName().trim().isEmpty()) {
-                errors.add("Contact name is required");
-            }
-            if (request.getContactInfo().getEmail() == null || request.getContactInfo().getEmail().trim().isEmpty()) {
-                errors.add("Contact email is required");
-            }
-            if (request.getContactInfo().getPhoneNumber() == null
-                    || request.getContactInfo().getPhoneNumber().trim().isEmpty()) {
-                errors.add("Contact phone number is required");
-            }
+        if (request.getContactInfo().getPhoneNumber() == null || request.getContactInfo().getPhoneNumber().trim().isEmpty()) {
+            errors.add("Contact phone number is required");
         }
-
-        if (request.getPassengers() == null) {
-            errors.add("Passenger counts are required");
-        } else if (request.getPassengers().getAdult() < 1) {
+        if (request.getPassengers() == null || request.getPassengers().getAdult() < 1) {
             errors.add("At least one adult passenger is required");
         }
-
         if (!errors.isEmpty()) {
-            log.error("Validation errors: {}", errors);
             throw new IllegalArgumentException("Validation failed: " + String.join(", ", errors));
         }
     }
 
-    private BookingPassengerDTO createContactPassenger(BookingPassengerRequestDTO request, Integer bookingId,
-            Long userId) {
-        try {
-            return create(BookingPassengerDTO.builder()
-                    .bookingId(bookingId)
-                    .userId(userId)
-                    .fullName(request.getContactInfo().getFullName())
-                    .phone(request.getContactInfo().getPhoneNumber())
-                    .email(request.getContactInfo().getEmail())
-                    .address(request.getContactInfo().getAddress() != null ? request.getContactInfo().getAddress() : "")
-                    .passengerType("adult") // Changed from ADULT to adult to match enum
-                    .build());
-        } catch (Exception e) {
-            log.error("Error creating contact passenger: ", e);
-            throw new RuntimeException("Failed to create contact passenger: " + e.getMessage());
-        }
+    private BookingPassengerDTO createContactPassenger(BookingPassengerRequestDTO request, Integer bookingId, Long userId) {
+        return create(BookingPassengerDTO.builder()
+                .bookingId(bookingId)
+                .userId(userId)
+                .fullName(request.getContactInfo().getFullName())
+                .phone(request.getContactInfo().getPhoneNumber())
+                .email(request.getContactInfo().getEmail())
+                .address(request.getContactInfo().getAddress())
+                .passengerType("adult")
+                .build());
     }
 
-    private void createAdditionalPassengers(BookingPassengerRequestDTO request, Integer bookingId, Long userId,
-            List<BookingPassengerDTO> passengers) {
-        try {
-            var passengerDetails = request.getPassengerDetails();
-            if (passengerDetails == null || passengerDetails.isEmpty()) {
-                throw new RuntimeException("Passenger details are required");
-            }
-
-            for (PassengerDetailDTO detail : passengerDetails) {
+    private void createAdditionalPassengers(BookingPassengerRequestDTO request, Integer bookingId, Long userId, List<BookingPassengerDTO> passengers) {
+        if (request.getPassengerDetails() != null) {
+            for (PassengerDetailDTO detail : request.getPassengerDetails()) {
                 BookingPassengerDTO passenger = BookingPassengerDTO.builder()
                         .bookingId(bookingId)
                         .userId(userId)
@@ -166,34 +147,26 @@ public class BookingPassengerService {
                         .build();
                 passengers.add(create(passenger));
             }
-        } catch (Exception e) {
-            log.error("Error creating additional passengers: ", e);
-            throw new RuntimeException("Failed to create additional passengers: " + e.getMessage());
         }
     }
 
     private BookingPassenger mapToEntity(BookingPassengerDTO dto) {
-        try {
-            Booking booking = bookingRepo.findById(dto.getBookingId())
-                    .orElseThrow(() -> new RuntimeException("Booking not found"));
-            User user = userRepo.findById(dto.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+        Booking booking = bookingRepo.findById(dto.getBookingId())
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        User user = userRepo.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            return BookingPassenger.builder()
-                    .booking(booking)
-                    .user(user)
-                    .fullName(dto.getFullName() != null ? dto.getFullName() : "Unnamed Passenger")
-                    .phone(dto.getPhone())
-                    .email(dto.getEmail())
-                    .address(dto.getAddress())
-                    .gender(dto.getGender())
-                    .birthDate(dto.getBirthDate())
-                    .passengerType(BookingPassenger.PassengerType.valueOf(dto.getPassengerType().toLowerCase()))
-                    .build();
-        } catch (Exception e) {
-            log.error("Error mapping DTO to entity: ", e);
-            throw new RuntimeException("Failed to map passenger data: " + e.getMessage());
-        }
+        return BookingPassenger.builder()
+                .booking(booking)
+                .user(user)
+                .fullName(dto.getFullName())
+                .phone(dto.getPhone())
+                .email(dto.getEmail())
+                .address(dto.getAddress())
+                .gender(dto.getGender())
+                .birthDate(dto.getBirthDate())
+                .passengerType(BookingPassenger.PassengerType.valueOf(dto.getPassengerType().toLowerCase()))
+                .build();
     }
 
     private BookingPassengerDTO mapToDTO(BookingPassenger p) {
